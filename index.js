@@ -108,7 +108,7 @@ module.exports = function({ types: t }) {
               name.node && name.node.name,
               sourceFileNameFromState(state),
               attributeNamesFromState(state),
-              ignoreComponentsFromOption
+              ignoreComponentsFromOption,
               state.opts[ignoreSourceFileOptionName] === true,
             )
           }
