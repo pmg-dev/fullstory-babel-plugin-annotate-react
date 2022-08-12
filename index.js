@@ -236,7 +236,7 @@ function applyAttributes(t, openingElement, componentName, sourceFileName, attri
   // Add a stable attribute for the source file name (absent for non-root elements)
   if (
     sourceFileName
-    && ignoreSourceFileOptionName !== true
+    && state.opts[ignoreSourceFileOptionName] === true
     && !ignoredComponentFromOptions
     && (componentName || ignoredElement === false)
     && !hasNodeNamed(openingElement, sourceFileAttributeName)
