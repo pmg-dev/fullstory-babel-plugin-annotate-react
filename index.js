@@ -66,6 +66,7 @@ module.exports = function({ types: t }) {
           sourceFileNameFromState(state),
           attributeNamesFromState(state),
           this.ignoreComponentsFromOption,
+          state.opts[ignoreSourceFileOptionName] === true
         )
       },
       ArrowFunctionExpression(path, state) {
@@ -79,6 +80,7 @@ module.exports = function({ types: t }) {
           sourceFileNameFromState(state),
           attributeNamesFromState(state),
           this.ignoreComponentsFromOption,
+          state.opts[ignoreSourceFileOptionName] === true,
         )
       },
       ClassDeclaration(path, state) {
@@ -107,6 +109,7 @@ module.exports = function({ types: t }) {
               sourceFileNameFromState(state),
               attributeNamesFromState(state),
               ignoreComponentsFromOption
+              state.opts[ignoreSourceFileOptionName] === true,
             )
           }
         })
@@ -183,7 +186,7 @@ function isReactFragment(openingElement) {
   )
 }
 
-function applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption) {
+function applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile = false) {
   const [componentAttributeName, elementAttributeName, sourceFileAttributeName] = attributeNames;
   if (!openingElement
       || isReactFragment(openingElement)
@@ -236,7 +239,7 @@ function applyAttributes(t, openingElement, componentName, sourceFileName, attri
   // Add a stable attribute for the source file name (absent for non-root elements)
   if (
     sourceFileName
-    && state.opts[ignoreSourceFileOptionName] !== true
+    && !ignoreSourceFile
     && !ignoredComponentFromOptions
     && (componentName || ignoredElement === false)
     && !hasNodeNamed(openingElement, sourceFileAttributeName)
@@ -250,13 +253,13 @@ function applyAttributes(t, openingElement, componentName, sourceFileName, attri
   }
 }
 
-function processJSXElement(annotateFragments, t, jsxElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption) {
+function processJSXElement(annotateFragments, t, jsxElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile) {
   if (!jsxElement) {
     return
   }
   const openingElement = jsxElement.get('openingElement')
 
-  applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption)
+  applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile)
 
   const children = jsxElement.get('children')
   if (children && children.length) {
@@ -273,7 +276,7 @@ function processJSXElement(annotateFragments, t, jsxElement, componentName, sour
   }
 }
 
-function functionBodyPushAttributes(annotateFragments, t, path, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption) {
+function functionBodyPushAttributes(annotateFragments, t, path, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile) {
   let jsxElement = null
   const functionBody = path.get('body').get('body')
   if (functionBody.parent && functionBody.parent.type === 'JSXElement') {
@@ -296,7 +299,7 @@ function functionBodyPushAttributes(annotateFragments, t, path, componentName, s
     jsxElement = arg
   }
   if (!jsxElement) return
-  processJSXElement(annotateFragments, t, jsxElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption)
+  processJSXElement(annotateFragments, t, jsxElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile)
 }
 
 function matchesIgnoreRule(rule, name) {
