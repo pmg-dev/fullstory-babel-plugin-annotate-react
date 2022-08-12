@@ -186,7 +186,7 @@ function isReactFragment(openingElement) {
   )
 }
 
-function applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile = false) {
+function applyAttributes(t, openingElement, componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile) {
   const [componentAttributeName, elementAttributeName, sourceFileAttributeName] = attributeNames;
   if (!openingElement
       || isReactFragment(openingElement)
@@ -268,9 +268,9 @@ function processJSXElement(annotateFragments, t, jsxElement, componentName, sour
       // Children don't receive the data-component attribute so we pass null for componentName unless it's the first child of a Fragment with a node and `annotateFragments` is true
       if (shouldSetComponentName && children[i].get('openingElement') && children[i].get('openingElement').node) {
         shouldSetComponentName = false
-        processJSXElement(annotateFragments, t, children[i], componentName, sourceFileName, attributeNames, ignoreComponentsFromOption)
+        processJSXElement(annotateFragments, t, children[i], componentName, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile)
       } else {
-        processJSXElement(annotateFragments, t, children[i], null, sourceFileName, attributeNames, ignoreComponentsFromOption)
+        processJSXElement(annotateFragments, t, children[i], null, sourceFileName, attributeNames, ignoreComponentsFromOption, ignoreSourceFile)
       }
     }
   }
